@@ -49,17 +49,16 @@ public class UsuarioController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioModel> actualizarUsuario(@PathVariable int id, @RequestBody UsuarioModel usuario) {
-        Optional<UsuarioModel> usuarioExistente = usuarioService.buscarUsuario(id);
-        if (usuarioExistente.isPresent()) {
-            usuario.setUserid(id);
-            UsuarioModel usuarioActualizado = usuarioService.guardarUsuario(usuario);
-            return ResponseEntity.ok(usuarioActualizado);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+public ResponseEntity<UsuarioModel> actualizarUsuario(@PathVariable int id, @RequestBody UsuarioModel usuario) {
+    Optional<UsuarioModel> usuarioExistente = usuarioService.buscarUsuario(id);
+    if (usuarioExistente.isPresent()) {
+        usuario.setUserid(id);
+        UsuarioModel usuarioActualizado = usuarioService.guardarUsuario(usuario);
+        return ResponseEntity.ok(usuarioActualizado);
+    } else {
+        return ResponseEntity.notFound().build();
     }
-
+}
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarUsuario(@PathVariable int id) {

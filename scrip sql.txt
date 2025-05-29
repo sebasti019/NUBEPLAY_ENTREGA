@@ -1,0 +1,41 @@
+- Tabla: usuarios
+CREATE TABLE usuarios (
+    userid INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100),
+    correo VARCHAR(150) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    rol VARCHAR(50),
+    activo BOOLEAN
+);
+
+- Tabla: inventario
+CREATE TABLE inventario (
+    id_juego INT AUTO_INCREMENT PRIMARY KEY,
+    titulo_juego VARCHAR(150),
+    categoria VARCHAR(100),
+    stock INT,
+    precio DOUBLE,
+    rating_contenido INT
+);
+
+- Tabla: carrito
+CREATE TABLE carrito (
+    id_carrito INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(userid)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+- Tabla: carrito_item
+CREATE TABLE carrito_item (
+    id_item INT AUTO_INCREMENT PRIMARY KEY,
+    id_juego INT,
+    cantidad INT,
+    id_carrito INT,
+    FOREIGN KEY (id_juego) REFERENCES inventario(id_juego)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE,
+    FOREIGN KEY (id_carrito) REFERENCES carrito(id_carrito)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
