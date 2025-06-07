@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-NubeplayUsuarioApplication<NUBEPLAY_USUARIO>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.example.NUBEPLAY_USUARIO.NubeplayUsuarioApplication",
+            "projectName": "NUBEPLAY_USUARIO",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

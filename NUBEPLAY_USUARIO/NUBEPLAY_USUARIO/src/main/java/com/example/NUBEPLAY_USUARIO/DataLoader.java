@@ -19,7 +19,7 @@ public class DataLoader implements CommandLineRunner{
     public void run(String... args) throws Exception {
         Faker faker = new Faker();
         Random random = new Random();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 25; i++) {
             UsuarioModel usuario = new UsuarioModel();
             usuario.setNombre(faker.name().fullName());
             usuario.setCorreo(faker.internet().emailAddress());

@@ -24,8 +24,8 @@ public class UsuarioController {
 
 
     @GetMapping
-    public List<UsuarioModel> listarUsuarios(@RequestParam(required = false) String rol,
-                                             @RequestParam(required = false) Boolean activo) {
+    public List<UsuarioModel> listarUsuarios(@RequestParam(name = "rol" , required = false) String rol,
+                                             @RequestParam(name = "activo" , required = false) Boolean activo) {
         if (rol != null) return usuarioService.buscarPorRol(rol);
         if (activo != null) return usuarioService.buscarPorActivo(activo);
         return usuarioService.getUsuarios();
