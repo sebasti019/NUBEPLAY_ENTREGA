@@ -32,9 +32,6 @@ public class DataLoader implements CommandLineRunner{
             } catch (org.springframework.dao.DataIntegrityViolationException e) {
                 System.err.println("Data integrity violation occurred: " + e.getMessage());
             }
-
         }
-
     }
-    
 }
