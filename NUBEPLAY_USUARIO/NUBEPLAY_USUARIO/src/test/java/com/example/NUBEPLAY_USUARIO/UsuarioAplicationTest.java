@@ -12,6 +12,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
 import com.example.NUBEPLAY_USUARIO.controller.UsuarioController;
@@ -148,6 +149,27 @@ public class UsuarioAplicationTest {
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    @Order(9)
+    void testBuscarPorRol() {
+        String rol = "cliente"; // asegúrate que exista en base de datos
+        ResponseEntity<String> response = restTemplate.getForEntity(
+            getUrl("/api/v1/usuarios?rol=" + rol), String.class
+        );
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).contains("[");
+    }
+
+    @Test
+    @Order(10)
+    void testBuscarPorActivo() {
+        ResponseEntity<String> response = restTemplate.getForEntity(
+            getUrl("/api/v1/usuarios?activo=true"), String.class
+        );
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).contains("[");
     }
   
 }
