@@ -1,20 +1,19 @@
 package com.example.NUBEPLAY_USUARIO.model;
-
-import java.util.Random;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
+import lombok.AllArgsConstructor; // <-- IMPORTA ESTA
 import lombok.Data;
-
+import lombok.NoArgsConstructor;   // <-- IMPORTA ESTA
 
 @Data
 @Entity
 @Table(name = "usuarios")
+@NoArgsConstructor   // <--- AGREGA ESTA ANOTACIÓN
+@AllArgsConstructor  // <--- AGREGA ESTA ANOTACIÓN
 public class UsuarioModel {
 
     @Id
@@ -37,4 +36,3 @@ public class UsuarioModel {
     private boolean activo;
 
 }
-

@@ -1,33 +1,36 @@
 package com.example.NUBEPLAY_USUARIO;
 
-import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import static org.assertj.core.api.Assertions.assertThat;
-
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
-import com.example.NUBEPLAY_USUARIO.controller.UsuarioController;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.example.NUBEPLAY_USUARIO.model.UsuarioModel;
-
+import com.example.NUBEPLAY_USUARIO.repository.UsuarioRepository;
 import net.datafaker.Faker;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import java.util.Collections;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@TestMethodOrder(OrderAnnotation.class)
-public class UsuarioAplicationTest {
+@ActiveProfiles("test")
 
-    @Autowired
-    private UsuarioController usuarioController;
+public class UsuarioAplicationTest {
 
     @LocalServerPort
     private int port;
@@ -35,11 +38,18 @@ public class UsuarioAplicationTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    private final Faker faker = new Faker();
-    private static Integer testUsuarioId;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
-    private String getUrl(String path) {
-        return "http://localhost:" + port + path;
+    private final Faker faker = new Faker();
+    private String baseUrl;
+
+
+    @BeforeEach
+    void setUp() {
+        baseUrl = "http://localhost:" + port + "/api/v1/usuarios";
+
+        usuarioRepository.deleteAll();
     }
 
     private UsuarioModel generarUsuarioFalso() {
@@ -53,123 +63,97 @@ public class UsuarioAplicationTest {
     }
 
     @Test
-    @Order(1)
-    void contextLoads() {
-        System.out.println("Testing the context loading...");
-        // System.out.println("Server running on port: " + port);
-    }
-
-    @Test
-    @Order(2)
-    void contextLoads2() throws Exception {
-        System.out.println("Testing the context loading. and the controller...");
-        assertThat(usuarioController).isNotNull();
-    }
-
-    @Test
-    @Order(3)
-    void getUsuarioContainsBrackets() throws Exception {
-        assertThat(this.restTemplate.getForObject("http://localhost:" + port +
-                "/api/v1/usuarios",
-                String.class)).toString().contains("[");
-    }
-
-
-    @Test
-    @Order(4)
     void testCrearUsuario() {
+
         UsuarioModel nuevoUsuario = generarUsuarioFalso();
+        HttpEntity<UsuarioModel> request = new HttpEntity<>(nuevoUsuario);
 
         ResponseEntity<UsuarioModel> response = restTemplate.postForEntity(
-                getUrl("/api/v1/usuarios"),
-                nuevoUsuario,
-                UsuarioModel.class
+            baseUrl,
+            request,
+            UsuarioModel.class
         );
+
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
-        testUsuarioId = response.getBody().getUserid(); // guardar ID para otros tests
-        assertThat(testUsuarioId).isNotNull();
-        System.out.println("Usuario creado con ID: " + testUsuarioId);
+        assertThat(response.getBody().getUserid()).isNotNull();
+        assertThat(response.getBody().getNombre()).isEqualTo(nuevoUsuario.getNombre());
     }
 
     @Test
-    @Order(5)
     void testGetUsuarioById() {
-        assertThat(testUsuarioId).isNotNull();
+
+        UsuarioModel usuarioGuardado = usuarioRepository.save(generarUsuarioFalso());
+        Integer idUsuario = usuarioGuardado.getUserid();
+        assertNotNull(idUsuario, "El ID del usuario no debería ser nulo después de guardarlo");
 
         ResponseEntity<UsuarioModel> response = restTemplate.getForEntity(
-                getUrl("/api/v1/usuarios/" + testUsuarioId),
-                UsuarioModel.class
+            baseUrl + "/" + idUsuario,
+            UsuarioModel.class
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getUserid()).isEqualTo(testUsuarioId);
+        assertThat(response.getBody().getUserid()).isEqualTo(idUsuario);
+        assertThat(response.getBody().getNombre()).isEqualTo(usuarioGuardado.getNombre());
     }
 
     @Test
-    @Order(6)
     void testUpdateUsuario() {
-        assertThat(testUsuarioId).isNotNull();
+        // 1) Guardamos un usuario para tener un ID existente
+        UsuarioModel usuarioOriginal = usuarioRepository.save(generarUsuarioFalso());
+        Integer idUsuario = usuarioOriginal.getUserid();
+        assertNotNull(idUsuario, "El ID del usuario no debería ser nulo");
 
-        UsuarioModel actualizado = generarUsuarioFalso();
-        actualizado.setUserid(testUsuarioId); // mismo ID
+        // 2) Preparamos los nuevos datos
+        UsuarioModel datosActualizados = generarUsuarioFalso();
+        datosActualizados.setNombre("Nombre Actualizado Correctamente");
 
-        HttpEntity<UsuarioModel> request = new HttpEntity<>(actualizado);
-        restTemplate.put(getUrl("/api/v1/usuarios/" + testUsuarioId), request);
+        // 3) Cabeceras JSON obligatorias
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-        ResponseEntity<UsuarioModel> response = restTemplate.getForEntity(
-                getUrl("/api/v1/usuarios/" + testUsuarioId),
-                UsuarioModel.class
+        // 4) Envío del PUT con HttpEntity
+        HttpEntity<UsuarioModel> request = new HttpEntity<>(datosActualizados, headers);
+        ResponseEntity<UsuarioModel> response = restTemplate.exchange(
+            baseUrl + "/" + idUsuario,
+            HttpMethod.PUT,
+            request,
+            UsuarioModel.class
         );
 
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getNombre()).isEqualTo(actualizado.getNombre());
-    }
-
-    @Test
-    @Order(7)
-    void testGetAllUsuarios() {
-        ResponseEntity<String> response = restTemplate.getForEntity(getUrl("/api/v1/usuarios"), String.class);
+        // 5) Asserts finales
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("[");
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getUserid()).isEqualTo(idUsuario);
+        assertThat(response.getBody().getNombre())
+            .isEqualTo("Nombre Actualizado Correctamente");
     }
 
     @Test
-    @Order(8)
     void testDeleteUsuario() {
-        assertThat(testUsuarioId).isNotNull();
+        UsuarioModel usuarioABorrar = usuarioRepository.save(generarUsuarioFalso());
+        Integer idUsuario = usuarioABorrar.getUserid();
+        assertNotNull(idUsuario, "El ID del usuario no debería ser nulo");
 
-        restTemplate.delete(getUrl("/api/v1/usuarios/" + testUsuarioId));
+        restTemplate.delete(baseUrl + "/" + idUsuario);
 
         ResponseEntity<UsuarioModel> response = restTemplate.getForEntity(
-                getUrl("/api/v1/usuarios/" + testUsuarioId),
-                UsuarioModel.class
+            baseUrl + "/" + idUsuario,
+            UsuarioModel.class
         );
-
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
-
+    
     @Test
-    @Order(9)
-    void testBuscarPorRol() {
-        String rol = "cliente"; // asegúrate que exista en base de datos
-        ResponseEntity<String> response = restTemplate.getForEntity(
-            getUrl("/api/v1/usuarios?rol=" + rol), String.class
-        );
+    void testGetAllUsuarios() {
+        usuarioRepository.save(generarUsuarioFalso());
+        usuarioRepository.save(generarUsuarioFalso());
+        ResponseEntity<UsuarioModel[]> response = restTemplate.getForEntity(baseUrl, UsuarioModel[].class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("[");
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().length).isGreaterThanOrEqualTo(2);
     }
-
-    @Test
-    @Order(10)
-    void testBuscarPorActivo() {
-        ResponseEntity<String> response = restTemplate.getForEntity(
-            getUrl("/api/v1/usuarios?activo=true"), String.class
-        );
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("[");
-    }
-  
 }

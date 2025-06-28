@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.Random;
-
-//@Profile("dev")
+//
+@Profile("dev")
 @Component
 public class DataLoader implements CommandLineRunner{
     @Autowired
