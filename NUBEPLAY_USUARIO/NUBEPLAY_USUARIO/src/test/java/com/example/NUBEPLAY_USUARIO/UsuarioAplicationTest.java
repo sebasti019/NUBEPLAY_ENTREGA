@@ -1,6 +1,7 @@
 package com.example.NUBEPLAY_USUARIO;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -63,6 +64,7 @@ public class UsuarioAplicationTest {
     }
 
     @Test
+    @Order(1)
     void testCrearUsuario() {
 
         UsuarioModel nuevoUsuario = generarUsuarioFalso();
@@ -82,6 +84,7 @@ public class UsuarioAplicationTest {
     }
 
     @Test
+    @Order(2)
     void testGetUsuarioById() {
 
         UsuarioModel usuarioGuardado = usuarioRepository.save(generarUsuarioFalso());
@@ -93,6 +96,8 @@ public class UsuarioAplicationTest {
             UsuarioModel.class
         );
 
+        System.out.println("el id probado es este = "+ idUsuario);
+
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getUserid()).isEqualTo(idUsuario);
@@ -100,6 +105,7 @@ public class UsuarioAplicationTest {
     }
 
     @Test
+    @Order(3)
     void testUpdateUsuario() {
         // 1) Guardamos un usuario para tener un ID existente
         UsuarioModel usuarioOriginal = usuarioRepository.save(generarUsuarioFalso());
@@ -133,6 +139,7 @@ public class UsuarioAplicationTest {
     }
 
     @Test
+    @Order(4)
     void testDeleteUsuario() {
         UsuarioModel usuarioABorrar = usuarioRepository.save(generarUsuarioFalso());
         Integer idUsuario = usuarioABorrar.getUserid();
@@ -148,6 +155,7 @@ public class UsuarioAplicationTest {
     }
     
     @Test
+    @Order(5)
     void testGetAllUsuarios() {
         usuarioRepository.save(generarUsuarioFalso());
         usuarioRepository.save(generarUsuarioFalso());

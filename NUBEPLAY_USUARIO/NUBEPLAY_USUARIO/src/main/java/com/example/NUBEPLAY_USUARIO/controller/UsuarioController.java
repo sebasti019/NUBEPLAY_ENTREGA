@@ -40,7 +40,7 @@ public class UsuarioController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioModel> buscarUsuario(@PathVariable int id) {
+    public ResponseEntity<UsuarioModel> buscarUsuario(@PathVariable(value = "id") int id) {
         Optional<UsuarioModel> usuarioOpt = usuarioService.buscarUsuario(id);
         return usuarioOpt
             .map(usuario -> ResponseEntity.ok(usuario))
@@ -49,7 +49,7 @@ public class UsuarioController {
 
 
     @PutMapping("/{id}")
-public ResponseEntity<UsuarioModel> actualizarUsuario(@PathVariable int id, @RequestBody UsuarioModel usuario) {
+public ResponseEntity<UsuarioModel> actualizarUsuario(@PathVariable(value = "id") int id, @RequestBody UsuarioModel usuario) {
     Optional<UsuarioModel> usuarioExistente = usuarioService.buscarUsuario(id);
     if (usuarioExistente.isPresent()) {
         usuario.setUserid(id);
@@ -61,7 +61,7 @@ public ResponseEntity<UsuarioModel> actualizarUsuario(@PathVariable int id, @Req
 }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminarUsuario(@PathVariable int id) {
+    public ResponseEntity<String> eliminarUsuario(@PathVariable(value = "id") int id) {
         Optional<UsuarioModel> usuarioExistente = usuarioService.buscarUsuario(id);
         if (usuarioExistente.isPresent()) {
             usuarioService.borrarUsuario(id);
