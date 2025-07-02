@@ -5,15 +5,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor; // <-- IMPORTA ESTA
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;   // <-- IMPORTA ESTA
+import lombok.NoArgsConstructor;  
 
 @Data
 @Entity
 @Table(name = "usuarios")
-@NoArgsConstructor   // <--- AGREGA ESTA ANOTACIÓN
-@AllArgsConstructor  // <--- AGREGA ESTA ANOTACIÓN
+@NoArgsConstructor
+@AllArgsConstructor
 public class UsuarioModel {
 
     @Id
